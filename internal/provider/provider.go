@@ -117,5 +117,8 @@ func (p *netutilsProvider) Functions(ctx context.Context) []func() function.Func
 		NewCAARecordValidateFunction,
 		NewDNSTXTLengthValidateFunction,
 		NewDNSCNAMEConflictsFunction,
+
+		// Topology composition
+		NewMermaidMergeFunction,
 	}
 }

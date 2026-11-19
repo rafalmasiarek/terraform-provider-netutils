@@ -47,6 +47,7 @@ taking two network-shaped arguments.
 | `cidr_overlap_analysis` | `cidrs` list(string) | list(object: `cidr_a` string, `cidr_b` string) | Every pair in the list that overlaps - e.g. conflicting route-table entries. |
 | `port_range_validate` | `from` number, `to` number | bool | Both within 1-65535, `from <= to`. |
 | `port_range_overlap` | `a_from` number, `a_to` number, `b_from` number, `b_to` number | bool | Whether two port ranges share a port. Each range must independently pass `port_range_validate`. |
+| `mermaid_merge` | `fragments` list(object: `entities` list(object), `edges` list(object)) | string | Merges `topology_fragment` outputs from independently-authored modules into one Mermaid flowchart. See `mermaid_merge` below. |
 
 ### ip_classify precedence
 
@@ -62,6 +63,41 @@ Checked in this order; the first match wins:
 8. `private` - RFC 1918, RFC 4193 (ULA)
 9. `public` - global unicast, none of the above
 10. `reserved` - valid address, none of the above
+
+### mermaid_merge
+
+Combines `topology_fragment` values - one per participating module (e.g.
+`terraform-aws-vpc`, `terraform-aws-subnets`, a NAT gateway/instance
+module) - into a single Mermaid diagram, without any module needing to
+know about any other. Full contract: [`docs/topology-fragment-spec.md`](docs/topology-fragment-spec.md).
+
+```hcl
+output "topology" {
+  value = provider::netutils::mermaid_merge([
+    module.vpc.topology_fragment,
+    module.subnets.topology_fragment,
+    module.nat.topology_fragment,
+  ])
+}
+```
+
+Each fragment is `{ entities = [...], edges = [...] }`. An entity
+(`id`, `label`, `kind`, `parent`) referenced as another entity's `parent`
+renders as a Mermaid subgraph; one never referenced as a parent renders as
+a plain node - derived from the merged set, not declared by any single
+fragment. An edge (`from`, `to`, `kind`, `label`) may reference an id no
+fragment declares; it still renders, as a fallback node. When two fragments
+declare the same entity `id`, the one later in the `fragments` list wins,
+wholesale. Every object key must be present explicitly (use `null` for an
+omitted optional one - `parent` on an entity, `kind`/`label` on an edge),
+consistent with every other multi-shape map in this module family.
+
+`id` is never written into the rendered diagram in any form - each
+Mermaid node gets an opaque hash of its `id` as a safe-syntax token, and
+the only readable text in the output is whatever you put in `label`. This
+is deliberate: `id` is routinely a full ARN (an ASG's, say), which embeds
+your AWS account id, and this output is meant to be pasted into a
+committed README.
 
 ## Data sources
 
