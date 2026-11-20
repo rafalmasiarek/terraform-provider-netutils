@@ -1,8 +1,10 @@
 # terraform-provider-netutils
+![](https://raw.githubusercontent.com/rafalmasiarek/readme-gen/main/banners/.gitkeep)
 
 Platform-agnostic networking utilities for Terraform: IP/CIDR operations,
 subnet planning, DNS/hostname tooling, network diagnostics. No dependency
 on any other Terraform provider.
+
 
 ## Provider configuration
 
@@ -13,6 +15,7 @@ provider "netutils" {}
 | Name | Type | Default | Description |
 |---|---|---|---|
 | `ip_lookup_endpoint` | `string` | `https://masiarek.pl/api/v2/ip/lookup` | Backend for `netutils_ip_info`. Falls back to the `NETUTILS_IP_LOOKUP_ENDPOINT` env var, then this default. |
+
 
 ## Functions
 
@@ -49,6 +52,7 @@ taking two network-shaped arguments.
 | `port_range_overlap` | `a_from` number, `a_to` number, `b_from` number, `b_to` number | bool | Whether two port ranges share a port. Each range must independently pass `port_range_validate`. |
 | `mermaid_merge` | `fragments` list(object: `entities` list(object), `edges` list(object)) | string | Merges `topology_fragment` outputs from independently-authored modules into one Mermaid flowchart. See `mermaid_merge` below. |
 
+
 ### ip_classify precedence
 
 Checked in this order; the first match wins:
@@ -63,6 +67,7 @@ Checked in this order; the first match wins:
 8. `private` - RFC 1918, RFC 4193 (ULA)
 9. `public` - global unicast, none of the above
 10. `reserved` - valid address, none of the above
+
 
 ### mermaid_merge
 
@@ -98,6 +103,7 @@ the only readable text in the output is whatever you put in `label`. This
 is deliberate: `id` is routinely a full ARN (an ASG's, say), which embeds
 your AWS account id, and this output is meant to be pasted into a
 committed README.
+
 
 ## Data sources
 
@@ -164,6 +170,7 @@ silently replaced).
 No AWS/Azure/GCP-specific reserved addresses are built in - express any
 such reservation explicitly via `reserved_cidrs`.
 
+
 #### Feeding results into terraform-aws-vpc + terraform-aws-subnets
 
 Neither [`terraform-aws-vpc`](https://github.com/rafalmasiarek/terraform-aws-vpc)
@@ -226,6 +233,7 @@ module "subnets" {
 }
 ```
 
+
 ### netutils_ip_info
 
 ```hcl
@@ -245,6 +253,7 @@ section wasn't returned - the upstream API's exact field set for those
 two sections isn't part of this provider's documented contract yet).
 Retries once per 5xx/network failure (configurable `timeout_seconds`,
 default 10); a 4xx is never retried.
+
 
 ### netutils_tcp_check / netutils_http_check / netutils_tls_certificate
 
@@ -271,6 +280,7 @@ meaningful diagnostic result. `netutils_tls_certificate` inspects
 whatever certificate is actually presented (including an expired one);
 it does not validate the certificate chain.
 
+
 ## Development
 
 ```
@@ -295,6 +305,31 @@ Set `TF_CLI_CONFIG_FILE` to that file's path, then run `terraform plan`
 directly - `terraform init` is unnecessary (and will fail) with
 `dev_overrides` active for a provider.
 
-## Author
 
-[Rafał Masiarek](https://github.com/rafalmasiarek)
+
+## License
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+```text
+The MIT License (MIT)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files, to deal in the Software
+without restriction.
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+
+Source: https://opensource.org/licenses/MIT
+```
+See [LICENSE](LICENSE) for full details.
+## Authors
+
+- Rafał Masiarek | [website](https://masiarek.pl) | [email](mailto:rafal@masiarek.pl) | [github](https://github.com/rafalmasiarek)
+
+
+<!-- references -->
+
+[repo_link]: https://github.com/rafalmasiarek/terraform-provider-netutils
